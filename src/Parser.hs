@@ -32,7 +32,7 @@ stringLiteralParser = do
   return $ StringToken content
 
 tokenParser :: Parser Token
-tokenParser = try numberParser <|> stringLiteralParser <|> wordParser
+tokenParser = try numberParser <|> try stringLiteralParser <|> wordParser
 
 mainParser :: Parser [Token]
 mainParser = sepBy tokenParser spaces
