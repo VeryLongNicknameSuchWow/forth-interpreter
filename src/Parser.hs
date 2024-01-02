@@ -1,6 +1,16 @@
-module Parser (Token, mainParser) where
+module Parser (Token (..), mainParser) where
 
 import Text.Parsec
+  ( char,
+    digit,
+    many,
+    many1,
+    noneOf,
+    sepBy,
+    spaces,
+    try,
+    (<|>),
+  )
 import Text.Parsec.String (Parser)
 import Text.Read (readMaybe)
 
