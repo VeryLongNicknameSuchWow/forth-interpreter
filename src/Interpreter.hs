@@ -8,6 +8,7 @@ import Control.Monad.State (StateT, get, modify, put)
 import Data.Foldable (find)
 import Parser (Token (..))
 import System.Exit (exitSuccess)
+import Data.Char (toLower)
 
 data StackItem = Integer !Integer | String !String
   deriving (Show, Eq)
@@ -75,7 +76,7 @@ push x = modify pushOntoStack
 lookupWord :: String -> [WordDefinition] -> Maybe (Interpreter ())
 lookupWord w = fmap snd . find match
   where
-    match (key, _) = key == w
+    match (key, _) = map toLower key == map toLower w
 
 interpretWord :: String -> Interpreter ()
 interpretWord w = do
