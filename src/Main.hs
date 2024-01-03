@@ -19,7 +19,6 @@ run currentState = do
       case result of
         Left err -> putStrLn $ "Runtime error: " ++ err
         Right _ -> return ()
-      print newState
       run newState
 
 main :: IO ()

@@ -37,9 +37,18 @@ type Interpreter a = ExceptT String (StateT VMState IO) a
 
 defaultDict :: [WordDefinition]
 defaultDict =
-  [ ("bye", liftIO exitSuccess),
-    (".", liftIO . print =<< pop)
+  [ ("bye", byeCallback),
+    (".", dotCallback),
+    (".s", dotSCallback),
+    ("debug", debugCallback),
+    ("words", wordsCallback)
   ]
+  where
+    byeCallback = liftIO exitSuccess
+    dotCallback = liftIO . print =<< pop
+    dotSCallback = liftIO . print . stack =<< get
+    debugCallback = liftIO . print =<< get
+    wordsCallback = liftIO . print . (map fst . dictionary) =<< get
 
 defaultVMState :: VMState
 defaultVMState =
