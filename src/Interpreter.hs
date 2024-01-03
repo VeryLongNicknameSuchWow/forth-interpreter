@@ -9,10 +9,17 @@ import Data.Foldable (find)
 import Parser (Token (..))
 import System.Exit (exitSuccess)
 
+data StackItem = Integer !Integer | String !String
+  deriving (Show, Eq)
+
+type WordDefinition = (String, Interpreter ())
+
+data VMMode = Interpretation | Compilation
+  deriving (Show, Eq)
+
 data VMState = VMState
-  { stack :: ![Integer],
-    dictionary :: ![(String, ForthInterpreter ())],
-    buffer :: !String,
+  { stack :: ![StackItem],
+    dictionary :: ![WordDefinition],
     mode :: !VMMode
   }
 
@@ -22,17 +29,13 @@ instance Show VMState where
     unlines
       [ "VMState:",
         "  Stack=" ++ show (stack vm) ++ ",",
-        "  Buffer=" ++ show (buffer vm) ++ ",",
         "  Dictionary=" ++ show ((map fst . dictionary) vm) ++ ",",
         "  Mode=" ++ show (mode vm)
       ]
 
-data VMMode = Interpretation | Compilation
-  deriving (Show, Eq)
+type Interpreter a = ExceptT String (StateT VMState IO) a
 
-type ForthInterpreter a = ExceptT String (StateT VMState IO) a
-
-defaultDict :: [(String, ForthInterpreter ())]
+defaultDict :: [WordDefinition]
 defaultDict =
   [ ("bye", liftIO exitSuccess),
     (".", liftIO . print =<< pop)
@@ -43,11 +46,10 @@ defaultVMState =
   VMState
     { stack = [],
       dictionary = defaultDict,
-      buffer = "",
       mode = Interpretation
     }
 
-pop :: ForthInterpreter Integer
+pop :: Interpreter StackItem
 pop = do
   vm <- get
   case stack vm of
@@ -56,27 +58,27 @@ pop = do
       put vm {stack = xs}
       return x
 
-push :: Integer -> ForthInterpreter ()
+push :: StackItem -> Interpreter ()
 push x = modify pushOntoStack
   where
     pushOntoStack vm = vm {stack = x : stack vm}
 
-lookupWord :: String -> [(String, ForthInterpreter ())] -> Maybe (ForthInterpreter ())
+lookupWord :: String -> [WordDefinition] -> Maybe (Interpreter ())
 lookupWord w = fmap snd . find match
   where
     match (key, _) = key == w
 
-interpretWord :: String -> ForthInterpreter ()
+interpretWord :: String -> Interpreter ()
 interpretWord w = do
   vm <- get
   case lookupWord w (dictionary vm) of
     Just action -> action
     Nothing -> throwError $ "Word \'" ++ w ++ "\' not in dictionary"
 
-execute :: Token -> ForthInterpreter ()
-execute (IntegerToken number) = push number
+execute :: Token -> Interpreter ()
 execute (WordToken word) = interpretWord word
-execute _ = return ()
+execute (IntegerToken int) = push $ Integer int
+execute (StringToken str) = push $ String str
 
-executeMany :: [Token] -> ForthInterpreter ()
+executeMany :: [Token] -> Interpreter ()
 executeMany = mapM_ execute
