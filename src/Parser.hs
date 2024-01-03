@@ -1,16 +1,8 @@
 module Parser (Token (..), mainParser) where
 
-import Text.Parsec
-  ( char,
-    digit,
-    many,
-    many1,
-    noneOf,
-    sepBy,
-    spaces,
-    try,
-    (<|>),
-  )
+import Text.Parsec (char, digit, many, many1, noneOf, skipMany1, spaces, try, (<|>))
+import Text.Parsec.Char (space)
+import Text.Parsec.Combinator (sepEndBy)
 import Text.Parsec.String (Parser)
 import Text.Read (readMaybe)
 
@@ -36,7 +28,7 @@ stringLiteralParser :: Parser Token
 stringLiteralParser = do
   _ <- char 's'
   _ <- char '"'
-  _ <- many $ char ' '
+  _ <- many1 space
   content <- many (noneOf "\"")
   _ <- char '"'
   return $ StringToken content
@@ -45,4 +37,4 @@ tokenParser :: Parser Token
 tokenParser = try numberParser <|> try stringLiteralParser <|> wordParser
 
 mainParser :: Parser [Token]
-mainParser = sepBy tokenParser spaces
+mainParser = spaces *> sepEndBy tokenParser (skipMany1 space)
