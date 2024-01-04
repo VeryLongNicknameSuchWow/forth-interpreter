@@ -5,10 +5,10 @@ module Interpreter (VMState, defaultVMState, executeMany) where
 import Control.Monad.Except (ExceptT, MonadError (throwError))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (StateT, get, modify, put)
+import Data.Char (toLower)
 import Data.Foldable (find)
 import Parser (Token (..))
 import System.Exit (exitSuccess)
-import Data.Char (toLower)
 
 data StackItem = Integer !Integer | String !String
   deriving (Show, Eq)
@@ -29,7 +29,7 @@ instance Show VMState where
   show vm =
     unlines
       [ "VMState:",
-        "  Stack=" ++ show (stack vm) ++ ",",
+        "  Stack=" ++ show (reverse $ stack vm) ++ ",",
         "  Dictionary=" ++ show ((map fst . dictionary) vm) ++ ",",
         "  Mode=" ++ show (mode vm)
       ]
@@ -46,9 +46,13 @@ defaultDict =
   ]
   where
     byeCallback = liftIO exitSuccess
+
     dotCallback = liftIO . print =<< pop
-    dotSCallback = liftIO . print . stack =<< get
+
+    dotSCallback = liftIO . print . reverse . stack =<< get
+
     debugCallback = liftIO . print =<< get
+
     wordsCallback = liftIO . print . (map fst . dictionary) =<< get
 
 defaultVMState :: VMState
