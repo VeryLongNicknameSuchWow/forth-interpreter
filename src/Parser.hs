@@ -1,6 +1,6 @@
 module Parser (Token (..), mainParser) where
 
-import Text.Parsec (char, digit, many, many1, noneOf, skipMany1, spaces, string, try, (<|>))
+import Text.Parsec (char, digit, many, many1, noneOf, optionMaybe, skipMany1, spaces, string, try, (<|>))
 import Text.Parsec.Char (space)
 import Text.Parsec.Combinator (sepEndBy)
 import Text.Parsec.String (Parser)
@@ -19,8 +19,10 @@ wordParser = do
 
 numberParser :: Parser Token
 numberParser = do
+  maybeMinus <- optionMaybe (char '-')
   numStr <- many1 digit
-  case readMaybe numStr of
+  let fullNumStr = maybe "" (const "-") maybeMinus ++ numStr
+  case readMaybe fullNumStr of
     Just num -> return $ IntegerToken num
     Nothing -> fail "Invalid number"
 
