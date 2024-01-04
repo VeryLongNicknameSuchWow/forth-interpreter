@@ -19,13 +19,9 @@ data StackItem = Integer !Integer | String !String
 
 type WordDefinition = (String, Interpreter ())
 
-data VMMode = Interpretation | Compilation
-  deriving (Show, Eq)
-
 data VMState = VMState
   { stack :: ![StackItem],
-    dictionary :: ![WordDefinition],
-    mode :: !VMMode
+    dictionary :: ![WordDefinition]
   }
 
 instance Show VMState where
@@ -34,8 +30,7 @@ instance Show VMState where
     unlines
       [ "VMState:",
         "  Stack=" ++ show (reverse $ stack vm) ++ ",",
-        "  Dictionary=" ++ show ((map fst . dictionary) vm) ++ ",",
-        "  Mode=" ++ show (mode vm)
+        "  Dictionary=" ++ show ((map fst . dictionary) vm)
       ]
 
 type Interpreter a = ExceptT String (StateT VMState IO) a
@@ -190,8 +185,7 @@ defaultVMState :: VMState
 defaultVMState =
   VMState
     { stack = [],
-      dictionary = defaultDict,
-      mode = Interpretation
+      dictionary = defaultDict
     }
 
 pop :: Interpreter StackItem
