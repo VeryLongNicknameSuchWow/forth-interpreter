@@ -1,6 +1,6 @@
 module Parser (Token (..), mainParser) where
 
-import Text.Parsec (char, digit, many, many1, noneOf, skipMany1, spaces, try, (<|>))
+import Text.Parsec (char, digit, many, many1, noneOf, skipMany1, spaces, string, try, (<|>))
 import Text.Parsec.Char (space)
 import Text.Parsec.Combinator (sepEndBy)
 import Text.Parsec.String (Parser)
@@ -24,17 +24,18 @@ numberParser = do
     Just num -> return $ IntegerToken num
     Nothing -> fail "Invalid number"
 
-stringLiteralParser :: Parser Token
-stringLiteralParser = do
-  _ <- char 's'
+stringParser :: Parser Token
+stringParser = do
   _ <- char '"'
-  _ <- many1 space
-  content <- many (noneOf "\"")
+  content <- many character
   _ <- char '"'
   return $ StringToken content
+  where
+    character :: Parser Char
+    character = try (string "\\\"" >> return '"') <|> noneOf "\""
 
 tokenParser :: Parser Token
-tokenParser = try numberParser <|> try stringLiteralParser <|> wordParser
+tokenParser = try numberParser <|> try stringParser <|> wordParser
 
 mainParser :: Parser [Token]
 mainParser = spaces *> sepEndBy tokenParser (skipMany1 space)
