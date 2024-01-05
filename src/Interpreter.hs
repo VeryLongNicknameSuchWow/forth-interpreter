@@ -73,8 +73,8 @@ defaultDict =
     dotPCallback = do
       item <- pop
       case item of
-        (Integer i) -> liftIO $ putStr $ show i
-        (String s) -> liftIO $ putStr s
+        Integer i -> liftIO $ putStr $ show i
+        String s -> liftIO $ putStr s
 
     crCallback = liftIO $ putStrLn ""
 
@@ -121,7 +121,7 @@ defaultDict =
       item <- pop
       case item of
         String s -> parseAndExecute s
-        _ -> throwError "Cannot execute an Integer"
+        Integer i -> push $ Integer i
 
     ifCallback = do
       condition <- pop
@@ -129,15 +129,18 @@ defaultDict =
       execIfFalse <- pop
       case (condition, execIfTrue, execIfFalse) of
         (String "", _, String s) -> parseAndExecute s
+        (String "", _, Integer i) -> push $ Integer i
         (Integer 0, _, String s) -> parseAndExecute s
+        (Integer 0, _, Integer i) -> push $ Integer i
         (_, String s, _) -> parseAndExecute s
-        (_, _, _) -> throwError "Not a valid conditional"
+        (_, Integer i, _) -> push $ Integer i
 
     defineCallback = do
       newWord <- pop
       definition <- pop
       case (newWord, definition) of
         (String w, String d) -> addWord w d
+        (String w, Integer i) -> addWord w $ show i
         _ -> throwError "Cannot register definition"
 
     pickCallback = do
