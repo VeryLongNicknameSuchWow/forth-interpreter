@@ -10,9 +10,8 @@ import Data.Char (toLower)
 import Data.Foldable (find)
 import Data.List (genericLength)
 import Data.Maybe (listToMaybe)
-import Parser (Token (..), mainParser)
+import Parser (Token (..), parseString)
 import System.Exit (exitSuccess)
-import Text.Parsec (parse)
 
 data StackItem = Integer !Integer | String !String
   deriving (Show, Eq)
@@ -266,7 +265,7 @@ executeMany = mapM_ execute
 
 parseAndExecute :: String -> Interpreter ()
 parseAndExecute str = do
-  let parseResult = parse mainParser "" str
+  let parseResult = parseString str
   case parseResult of
-    Left err -> throwError $ "error parsing " ++ show err
+    Left err -> throwError $ "error parsing " ++ err
     Right tokens -> executeMany tokens

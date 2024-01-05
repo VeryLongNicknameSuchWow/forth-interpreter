@@ -1,6 +1,6 @@
-module Parser (Token (..), mainParser) where
+module Parser (Token (..), parseString) where
 
-import Text.Parsec (char, digit, many, many1, noneOf, optionMaybe, skipMany1, spaces, string, try, (<|>))
+import Text.Parsec (char, digit, many, many1, noneOf, optionMaybe, parse, skipMany1, spaces, string, try, (<|>))
 import Text.Parsec.Char (space)
 import Text.Parsec.Combinator (sepEndBy)
 import Text.Parsec.String (Parser)
@@ -41,3 +41,10 @@ tokenParser = try numberParser <|> try stringParser <|> wordParser
 
 mainParser :: Parser [Token]
 mainParser = spaces *> sepEndBy tokenParser (skipMany1 space)
+
+parseString :: String -> Either String [Token]
+parseString str = do
+  let parseResult = parse mainParser "" str
+  case parseResult of
+    Left err -> Left $ show err
+    Right tokens -> Right tokens

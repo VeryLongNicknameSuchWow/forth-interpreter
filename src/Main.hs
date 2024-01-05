@@ -3,16 +3,15 @@ module Main (main) where
 import Control.Monad.Except (runExceptT)
 import Control.Monad.State (StateT (runStateT))
 import Interpreter (VMState, defaultVMState, executeMany)
-import Parser (mainParser)
-import Text.Parsec (parse)
+import Parser (parseString)
 
 run :: VMState -> IO ()
 run currentState = do
   input <- getLine
-  let parseResult = parse mainParser "" input
+  let parseResult = parseString input
   case parseResult of
     Left err -> do
-      putStrLn $ "Error parsing input " ++ show err
+      putStrLn $ "Error parsing: " ++ err
       run currentState
     Right tokens -> do
       (result, newState) <- runStateT (runExceptT (executeMany tokens)) currentState
