@@ -1,6 +1,10 @@
 # Forth-like interpreter
 This is an interpreter of a Forth-like language made in Haskell using the `Parsec` and `mtl` libraries.
 
+## Examples
+- [Fibonacci Number Calculation](./examples/fibonacci.md)
+
+
 ## The Stack
 Anything you enter inside the query is either a String, an Integer, or a Word. Query elements can be separated by spaces. Strings and Integers are added onto the stack upon evaluation. Words are executed instead. Each query is evaluated left to right.
 
