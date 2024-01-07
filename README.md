@@ -6,6 +6,7 @@ Ensure you have [Stack](https://docs.haskellstack.org/en/stable/), a Haskell bui
 
 ## Examples
 - [Fibonacci Number Calculation](./examples/fibonacci.md)
+- [Language extensions](./examples/extensions.md)
 
 ## Documentation
 You can access the detailed documentation [here](./documentation.md).
