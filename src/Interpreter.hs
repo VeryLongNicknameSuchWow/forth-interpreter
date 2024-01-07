@@ -56,7 +56,8 @@ defaultDict =
     (">", moreThanCallback),
     ("roll", rollCallback),
     ("drop", dropCallback),
-    ("undefine", undefineCallback)
+    ("undefine", undefineCallback),
+    ("size", sizeCallback)
   ]
   where
     byeCallback = liftIO exitSuccess
@@ -182,6 +183,11 @@ defaultDict =
       case word of
         String w -> rmWord w
         _ -> throwError "Cannot register definition"
+
+    sizeCallback = do
+      vm <- get
+      let stackLength = length $ stack vm
+      push $ Integer $ toInteger stackLength
 
 defaultVMState :: VMState
 defaultVMState =
